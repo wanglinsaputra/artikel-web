@@ -1,0 +1,270 @@
+@import "tailwindcss";
+
+:root {
+  /* Background — DESIGN.MD */
+  --bg-base: #0b0b10;
+  --bg-surface: #14141c;
+  --bg-surface-hover: #1a1a24;
+  --bg-elevated: #1f1f2b;
+
+  /* Borders */
+  --border-subtle: #24242f;
+  --border-default: #2e2e3a;
+  --border-hover: #3b82f6;
+
+  /* Typography — secondary/muted must stay readable on dark surface */
+  --text-primary: #f5f5f7;
+  --text-secondary: #b3b3bd;
+  /* design #7C7C87 fails AA on base; keep muted readable */
+  --text-muted: #9a9aa5;
+
+  /* Accent */
+  --accent-primary: #3b82f6;
+  --accent-primary-hover: #2563eb;
+
+  /* Status */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* Badge */
+  --badge-neutral-bg: #24242f;
+  --badge-neutral-text: #b3b3bd;
+  --badge-warning-bg: #78350f;
+  --badge-warning-text: #fbbf24;
+  --badge-info-bg: #1e3a8a;
+  --badge-info-text: #93c5fd;
+
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.35);
+  --danger-text: #fca5a5;
+  --success-bg: rgba(34, 197, 94, 0.12);
+  --success-border: rgba(34, 197, 94, 0.35);
+  --success-text: #86efac;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.25);
+
+  --background: var(--bg-base);
+  --foreground: var(--text-primary);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-base: #0b0b10;
+  --color-surface: #14141c;
+  --color-surface-hover: #1a1a24;
+  --color-elevated: #1f1f2b;
+  --color-border: #24242f;
+  --color-border-default: #2e2e3a;
+  --color-border-hover: #3b82f6;
+  /* hex in theme so utilities never resolve empty */
+  --color-primary: #f5f5f7;
+  --color-secondary: #b3b3bd;
+  --color-muted: #9a9aa5;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-badge-neutral: #24242f;
+  --color-badge-neutral-fg: #b3b3bd;
+  --color-badge-warning: #78350f;
+  --color-badge-warning-fg: #fbbf24;
+  --color-badge-info: #1e3a8a;
+  --color-badge-info-fg: #93c5fd;
+  --color-danger: #fca5a5;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.35);
+  --color-success: #86efac;
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-success-border: rgba(34, 197, 94, 0.35);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* hard guarantee — Tailwind name clash / missing utility cannot hide body copy */
+.text-primary {
+  color: var(--text-primary) !important;
+}
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+.text-muted {
+  color: var(--text-muted) !important;
+}
+.text-accent {
+  color: var(--accent-primary) !important;
+}
+.text-accent-hover:hover,
+.hover\:text-accent-hover:hover {
+  color: var(--accent-primary-hover) !important;
+}
+.hover\:text-primary:hover {
+  color: var(--text-primary) !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.prose-content {
+  white-space: pre-wrap;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+.field {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.625rem 0.75rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.field::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.field:focus,
+.field:focus-visible {
+  border-color: var(--accent-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--accent-primary);
+  padding: 0.625rem 1.25rem;
+  min-height: 44px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #ffffff;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--accent-primary-hover);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--border-subtle);
+  padding: 0.5rem 1rem;
+  min-height: 40px;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent-primary);
+  background: transparent;
+}
+
+.btn-ghost:active {
+  transform: scale(0.98);
+}
+
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid var(--danger-border);
+  padding: 0.5rem 0.875rem;
+  min-height: 40px;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  color: var(--danger-text);
+  transition: background 0.2s ease;
+}
+
+.btn-danger:hover {
+  background: var(--danger-bg);
+}
+
+.btn-danger:focus-visible {
+  outline: 2px solid var(--danger-text);
+  outline-offset: 2px;
+}
+
+.alert {
+  border-radius: 0.75rem;
+  border: 1px solid transparent;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.alert-error {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-text);
+}
+
+.alert-success {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-text);
+}
