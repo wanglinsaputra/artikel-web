@@ -14,6 +14,7 @@ import {
   listBansos,
   setBansosPublished,
 } from "@/lib/db";
+import { parseListLines } from "@/lib/list-lines";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Panel Bansos" };
@@ -45,6 +46,8 @@ export default async function PanelBansosPage({
     const title = String(formData.get("title") || "").trim();
     const excerpt = String(formData.get("excerpt") || "").trim();
     const content = String(formData.get("content") || "").trim();
+    const how_to_claim = parseListLines(String(formData.get("how_to_claim") || ""));
+    const security_notes = parseListLines(String(formData.get("security_notes") || ""));
     const provider = String(formData.get("provider") || "").trim();
     const category = String(formData.get("category") || "Free Credit").trim() || "Free Credit";
     const image_url = String(formData.get("image_url") || "").trim();
@@ -68,6 +71,8 @@ export default async function PanelBansosPage({
       is_hot,
       valid_until,
       published,
+      ...(how_to_claim.length ? { how_to_claim } : {}),
+      ...(security_notes.length ? { security_notes } : {}),
       ...(actionUrl ? { actionUrl } : {}),
       ...(actionLabel ? { actionLabel } : {}),
     });
@@ -103,17 +108,44 @@ export default async function PanelBansosPage({
           <ImageUrlField />
           <input name="valid_until" placeholder="Berlaku sampai (YYYY-MM-DD)" className="field" />
           <input name="excerpt" placeholder="Ringkasan / preview" className="field" />
-          <textarea name="content" placeholder="Detail lengkap" rows={6} className="field" />
+          <textarea
+            name="content"
+            placeholder="Detail tambahan (opsional)"
+            rows={3}
+            className="field"
+          />
+          <label className="block text-sm text-secondary">
+            Cara klaim
+            <span className="mt-0.5 block text-[13px] text-muted">
+              Satu baris = satu langkah (nomor otomatis di frontend)
+            </span>
+            <textarea
+              name="how_to_claim"
+              placeholder={"Buka link resmi klaim.\nBaca syarat dan ketentuan provider.\nKlaim benefit sesuai aturan resmi."}
+              rows={5}
+              className="field mt-1"
+            />
+          </label>
+          <label className="block text-sm text-secondary">
+            Syarat dan catatan keamanan
+            <span className="mt-0.5 block text-[13px] text-muted">Satu baris = satu bullet</span>
+            <textarea
+              name="security_notes"
+              placeholder={"Buka https://example.com/sign-up\nDaftar menggunakan email valid\nSelesaikan verifikasi sesuai instruksi provider"}
+              rows={6}
+              className="field mt-1"
+            />
+          </label>
           <input
             name="actionUrl"
             type="url"
             inputMode="url"
-            placeholder="Official Link (https://...)"
+            placeholder="Link resmi klaim (https://...)"
             className="field"
           />
           <input
             name="actionLabel"
-            placeholder="Button Label (default: Open Website)"
+            placeholder="Label tombol (default: Buka Situs Resmi)"
             className="field"
             maxLength={80}
           />

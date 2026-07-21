@@ -47,6 +47,10 @@ export type Bansos = {
   slug: string;
   excerpt: string;
   content: string;
+  /** Numbered claim steps. Absent/empty on legacy posts. */
+  how_to_claim?: string[];
+  /** Security notes / requirements bullets. Absent/empty on legacy posts. */
+  security_notes?: string[];
   provider: string;
   category: string;
   image_url: string;
@@ -55,7 +59,7 @@ export type Bansos = {
   valid_until: string | null;
   /** Optional official CTA link. Absent on legacy posts. */
   actionUrl?: string;
-  /** Optional CTA button label. Defaults to "Open Website" on frontend. */
+  /** Optional CTA button label. Defaults to "Buka Situs Resmi" on frontend. */
   actionLabel?: string;
   views: number;
   published: number;
@@ -443,6 +447,8 @@ export async function createBansos(
         views: 0,
         created_at: t,
         updated_at: t,
+        ...(data.how_to_claim?.length ? { how_to_claim: data.how_to_claim } : {}),
+        ...(data.security_notes?.length ? { security_notes: data.security_notes } : {}),
         ...(data.actionUrl ? { actionUrl: data.actionUrl } : {}),
         ...(data.actionLabel ? { actionLabel: data.actionLabel } : {}),
       };
