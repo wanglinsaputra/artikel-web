@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminListToolbar, AdminPagination } from "@/components/admin-list-controls";
 import { CoverImage } from "@/components/cover-image";
 import { ImageUrlField } from "@/components/image-url-field";
+import { MarkdownEditor } from "@/components/markdown-editor";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireAdmin } from "@/lib/admin";
 import { ADMIN_PAGE_SIZE, clampAdminPage, parseAdminListQuery } from "@/lib/admin-query";
@@ -91,7 +92,7 @@ export default async function PanelArtikelPage({
           <input name="author" placeholder="Author" defaultValue="Admin" className="field" />
           <ImageUrlField />
           <input name="excerpt" placeholder="Ringkasan" className="field" />
-          <textarea name="content" placeholder="Konten" rows={6} className="field" />
+          <MarkdownEditor name="content" placeholder="Konten (Markdown: **bold**, # heading, - list, ...)" rows={10} />
           <label className="flex items-center gap-2 text-sm text-secondary">
             <input type="checkbox" name="published" defaultChecked /> Publish
           </label>

@@ -1,4 +1,5 @@
 import { CoverImage } from "@/components/cover-image";
+import { MarkdownContent } from "@/components/markdown-content";
 import { Badge, Container, TextLink } from "@/components/ui";
 import { getArticleBySlug } from "@/lib/db";
 import { notFound } from "next/navigation";
@@ -26,7 +27,7 @@ export default async function ArtikelDetailPage({
       </p>
       <CoverImage src={article.image_url} alt={article.title} className="mt-6 h-64 w-full object-cover" />
       <p className="mt-4 text-base text-secondary">{article.excerpt}</p>
-      <div className="prose-content mt-8">{article.content}</div>
+      <MarkdownContent content={article.content} className="prose-content mt-8" />
     </Container>
   );
 }
