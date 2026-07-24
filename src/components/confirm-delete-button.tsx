@@ -7,7 +7,7 @@ export function ConfirmDeleteButton({
   message = "Yakin hapus akun ini? Tidak bisa dibatalkan.",
 }: {
   action: (formData: FormData) => void | Promise<void>;
-  id: number;
+  id: number | string;
   label?: string;
   message?: string;
 }) {

@@ -10,6 +10,7 @@ const nav = [
   { href: "/asu/bansos", label: "Bansos AI" },
   { href: "/asu/marketplace", label: "Marketplace" },
   { href: "/asu/users", label: "Users" },
+  { href: "/asu/shortlink", label: "Shortlink" },
 ];
 
 function navActive(pathname: string, href: string, exact?: boolean) {

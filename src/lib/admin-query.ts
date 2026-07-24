@@ -1,6 +1,6 @@
 /** Shared admin list query parsing (URL searchParams). */
 
-export const ADMIN_PAGE_SIZE = 20;
+export const ADMIN_PAGE_SIZE = 10;
 
 export type AdminSort = "newest" | "oldest" | "title";
 export type AdminStatus = "all" | "published" | "draft";

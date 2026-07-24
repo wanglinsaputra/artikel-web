@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AdminListToolbar, AdminPagination } from "@/components/admin-list-controls";
 import { CoverImage } from "@/components/cover-image";
 import { ImageUrlField } from "@/components/image-url-field";
+import { MarkdownEditor } from "@/components/markdown-editor";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireAdmin } from "@/lib/admin";
 import { ADMIN_PAGE_SIZE, clampAdminPage, parseAdminListQuery } from "@/lib/admin-query";
@@ -103,7 +104,7 @@ export default async function PanelMarketplacePage({
           <input name="price" type="number" min={0} step={1000} placeholder="Harga (Rp)" className="field" />
           <input name="stock" type="number" min={0} placeholder="Stok" className="field" />
           <input name="telegram_text" placeholder="Pesan order Telegram (opsional)" className="field" />
-          <textarea name="description" placeholder="Deskripsi" rows={5} className="field" />
+          <MarkdownEditor name="description" placeholder="Deskripsi produk (Markdown: **bold**, # heading, - list, ...)" rows={8} />
           <label className="flex items-center gap-2 text-sm text-secondary">
             <input type="checkbox" name="published" defaultChecked /> Publish
           </label>

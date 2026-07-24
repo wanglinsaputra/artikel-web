@@ -1,4 +1,5 @@
 import { CoverImage } from "@/components/cover-image";
+import { MarkdownContent } from "@/components/markdown-content";
 import { Badge, ButtonLink, Container, TextLink } from "@/components/ui";
 import { telegramOrderUrl } from "@/lib/auth";
 import { formatRp, getProductBySlug } from "@/lib/db";
@@ -29,7 +30,7 @@ export default async function ProductDetailPage({
       <h1 className="mt-3 text-[28px] font-bold text-primary sm:text-[32px]">{product.title}</h1>
       <p className="mt-3 text-2xl font-semibold text-accent">{formatRp(product.price)}</p>
       <CoverImage src={product.image_url} alt={product.title} className="mt-6 h-64 w-full object-cover" />
-      <p className="prose-content mt-6">{product.description}</p>
+      <MarkdownContent content={product.description} className="prose-content mt-6" />
       <ButtonLink href={orderUrl} target="_blank" rel="noreferrer" className="mt-8">
         Order via Telegram
       </ButtonLink>

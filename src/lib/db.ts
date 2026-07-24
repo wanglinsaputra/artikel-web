@@ -1,4 +1,4 @@
-import { MongoClient, type Db } from "mongodb";
+import { MongoClient, ObjectId, type Db } from "mongodb";
 import { insertWithUniqueSlug } from "./slug";
 
 export { slugify } from "./slug";
@@ -154,6 +154,14 @@ async function ensureSlugIndexes(database: Db) {
     database.collection("users").createIndex(
       { username: 1 },
       { unique: true, name: "users_username_unique" }
+    ),
+    database.collection("shortlinks").createIndex(
+      { code: 1 },
+      { unique: true, name: "shortlinks_code_unique" }
+    ),
+    database.collection("shortlink_clicks").createIndex(
+      { link_id: 1 },
+      { name: "shortlink_clicks_link_id" }
     ),
   ]);
 }
@@ -841,4 +849,281 @@ export async function getTrendingSections(): Promise<TrendingSection[]> {
     })
     .map((item, i) => ({ ...item, rank: i + 1 }));
   return ranked;
+}
+
+/* -------------------------------------------------------------------------- */
+/* SHORTLINK SYSTEM                                                           */
+/* -------------------------------------------------------------------------- */
+
+export type ShortlinkDoc = {
+  _id?: ObjectId;
+  code: string;
+  target_url: string;
+  click_count: number;
+  created_at: Date;
+  expires_at: Date | null;
+  active: boolean;
+};
+
+export type ShortlinkClickDoc = {
+  _id?: ObjectId;
+  link_id: ObjectId;
+  clicked_at: Date;
+  referrer: string | null;
+  user_agent: string | null;
+};
+
+const RESERVED_PATHS = new Set([
+  "artikel",
+  "bansos-ai",
+  "marketplace",
+  "asu",
+  "api",
+  "daftar",
+  "masuk",
+  "login",
+  "shortlink",
+  "users",
+]);
+
+export async function isCodeAvailable(code: string, excludeId?: string): Promise<boolean> {
+  const normalized = code.trim();
+  if (!normalized) return false;
+  if (RESERVED_PATHS.has(normalized.toLowerCase())) return false;
+
+  await ensureSeed();
+  const database = await db();
+
+  const shortlinkFilter: Record<string, unknown> = { code: normalized };
+  if (excludeId && ObjectId.isValid(excludeId)) {
+    shortlinkFilter._id = { $ne: new ObjectId(excludeId) };
+  }
+  const existingLink = await database.collection<ShortlinkDoc>("shortlinks").findOne(shortlinkFilter);
+  if (existingLink) return false;
+
+  const existingArticle = await database.collection<Article>("articles").findOne({ slug: normalized });
+  if (existingArticle) return false;
+
+  const existingBansos = await database.collection<Bansos>("bansos").findOne({ slug: normalized });
+  if (existingBansos) return false;
+
+  const existingProduct = await database.collection<Product>("products").findOne({ slug: normalized });
+  if (existingProduct) return false;
+
+  return true;
+}
+
+export async function generateRandomCode(length = 6): Promise<string> {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  for (let attempt = 0; attempt < 20; attempt++) {
+    let code = "";
+    for (let i = 0; i < length; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    if (await isCodeAvailable(code)) {
+      return code;
+    }
+  }
+  for (let attempt = 0; attempt < 20; attempt++) {
+    let code = "";
+    for (let i = 0; i < 7; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    if (await isCodeAvailable(code)) {
+      return code;
+    }
+  }
+  throw new Error("Gagal membuat random code unik.");
+}
+
+export async function countShortlinks(opts: { q?: string; status?: string }): Promise<number> {
+  await ensureSeed();
+  const database = await db();
+  const filter: Record<string, unknown> = {};
+
+  if (opts.q?.trim()) {
+    const q = opts.q.trim();
+    filter.$or = [
+      { code: { $regex: q, $options: "i" } },
+      { target_url: { $regex: q, $options: "i" } },
+    ];
+  }
+
+  const now = new Date();
+  if (opts.status === "active") {
+    filter.active = true;
+    filter.$and = [
+      { $or: [{ expires_at: null }, { expires_at: { $gt: now } }] }
+    ];
+  } else if (opts.status === "inactive") {
+    filter.active = false;
+  } else if (opts.status === "expired") {
+    filter.active = true;
+    filter.expires_at = { $ne: null, $lte: now };
+  }
+
+  return database.collection<ShortlinkDoc>("shortlinks").countDocuments(filter);
+}
+
+export async function listShortlinks(opts: {
+  q?: string;
+  status?: string;
+  skip?: number;
+  limit?: number;
+}): Promise<ShortlinkDoc[]> {
+  await ensureSeed();
+  const database = await db();
+  const filter: Record<string, unknown> = {};
+
+  if (opts.q?.trim()) {
+    const q = opts.q.trim();
+    filter.$or = [
+      { code: { $regex: q, $options: "i" } },
+      { target_url: { $regex: q, $options: "i" } },
+    ];
+  }
+
+  const now = new Date();
+  if (opts.status === "active") {
+    filter.active = true;
+    filter.$and = [
+      { $or: [{ expires_at: null }, { expires_at: { $gt: now } }] }
+    ];
+  } else if (opts.status === "inactive") {
+    filter.active = false;
+  } else if (opts.status === "expired") {
+    filter.active = true;
+    filter.expires_at = { $ne: null, $lte: now };
+  }
+
+  const items = await database
+    .collection<ShortlinkDoc>("shortlinks")
+    .find(filter)
+    .sort({ created_at: -1 })
+    .skip(opts.skip || 0)
+    .limit(opts.limit || 10)
+    .toArray();
+
+  return items;
+}
+
+export async function getShortlinkByCode(code: string): Promise<ShortlinkDoc | null> {
+  await ensureSeed();
+  const database = await db();
+  return database.collection<ShortlinkDoc>("shortlinks").findOne({ code });
+}
+
+export async function getShortlinkById(id: string): Promise<ShortlinkDoc | null> {
+  if (!ObjectId.isValid(id)) return null;
+  await ensureSeed();
+  const database = await db();
+  return database.collection<ShortlinkDoc>("shortlinks").findOne({ _id: new ObjectId(id) });
+}
+
+export async function createShortlink(data: {
+  code?: string;
+  target_url: string;
+  expires_at?: Date | null;
+  active?: boolean;
+}): Promise<ShortlinkDoc> {
+  await ensureSeed();
+  const database = await db();
+
+  let code = data.code?.trim();
+  if (!code) {
+    code = await generateRandomCode();
+  } else {
+    const available = await isCodeAvailable(code);
+    if (!available) {
+      throw new Error(`Kode "${code}" sudah digunakan atau merupakan kata cadangan sistem.`);
+    }
+  }
+
+  const doc: ShortlinkDoc = {
+    code,
+    target_url: data.target_url.trim(),
+    click_count: 0,
+    created_at: new Date(),
+    expires_at: data.expires_at || null,
+    active: data.active !== false,
+  };
+
+  const res = await database.collection<ShortlinkDoc>("shortlinks").insertOne(doc);
+  return { ...doc, _id: res.insertedId };
+}
+
+export async function updateShortlink(
+  id: string,
+  data: {
+    code?: string;
+    target_url?: string;
+    expires_at?: Date | null;
+    active?: boolean;
+  }
+): Promise<boolean> {
+  if (!ObjectId.isValid(id)) return false;
+  await ensureSeed();
+  const database = await db();
+
+  const updates: Partial<ShortlinkDoc> = {};
+
+  if (data.target_url !== undefined) {
+    updates.target_url = data.target_url.trim();
+  }
+  if (data.active !== undefined) {
+    updates.active = data.active;
+  }
+  if (data.expires_at !== undefined) {
+    updates.expires_at = data.expires_at;
+  }
+  if (data.code !== undefined && data.code.trim()) {
+    const newCode = data.code.trim();
+    const available = await isCodeAvailable(newCode, id);
+    if (!available) {
+      throw new Error(`Kode "${newCode}" sudah digunakan atau merupakan kata cadangan sistem.`);
+    }
+    updates.code = newCode;
+  }
+
+  if (Object.keys(updates).length === 0) return true;
+
+  const res = await database
+    .collection<ShortlinkDoc>("shortlinks")
+    .updateOne({ _id: new ObjectId(id) }, { $set: updates });
+
+  return res.modifiedCount > 0;
+}
+
+export async function deleteShortlink(id: string): Promise<boolean> {
+  if (!ObjectId.isValid(id)) return false;
+  await ensureSeed();
+  const database = await db();
+  const _id = new ObjectId(id);
+
+  await database.collection("shortlink_clicks").deleteMany({ link_id: _id });
+  const res = await database.collection("shortlinks").deleteOne({ _id });
+  return res.deletedCount > 0;
+}
+
+export async function recordShortlinkClick(opts: {
+  link_id: ObjectId;
+  referrer: string | null;
+  user_agent: string | null;
+}): Promise<void> {
+  try {
+    const database = await db();
+    await Promise.all([
+      database
+        .collection<ShortlinkDoc>("shortlinks")
+        .updateOne({ _id: opts.link_id }, { $inc: { click_count: 1 } }),
+      database.collection<ShortlinkClickDoc>("shortlink_clicks").insertOne({
+        link_id: opts.link_id,
+        clicked_at: new Date(),
+        referrer: opts.referrer,
+        user_agent: opts.user_agent,
+      }),
+    ]);
+  } catch (err) {
+    console.error("Failed to record shortlink click:", err);
+  }
 }

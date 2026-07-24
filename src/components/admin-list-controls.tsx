@@ -75,6 +75,19 @@ export function AdminListToolbar({
   );
 }
 
+function getPageNumbers(current: number, total: number): (number | string)[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, "...", total];
+  }
+  if (current >= total - 3) {
+    return [1, "...", total - 4, total - 3, total - 2, total - 1, total];
+  }
+  return [1, "...", current - 1, current, current + 1, "...", total];
+}
+
 export function AdminPagination({
   basePath,
   page,
@@ -109,29 +122,87 @@ export function AdminPagination({
       extra,
     });
 
+  const pageNumbers = getPageNumbers(page, totalPages);
+
   return (
     <nav
-      className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4"
+      className="border-t border-border pt-4"
       aria-label="Pagination"
     >
-      <p className="text-[13px] text-muted">
-        Halaman {page} / {totalPages}
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {prev ? (
-          <Link href={link(prev)} className="btn-ghost min-h-10 px-4" prefetch={false}>
-            ← Prev
-          </Link>
-        ) : (
-          <span className="btn-ghost min-h-10 cursor-not-allowed px-4 opacity-40">← Prev</span>
-        )}
-        {next ? (
-          <Link href={link(next)} className="btn-ghost min-h-10 px-4" prefetch={false}>
-            Next →
-          </Link>
-        ) : (
-          <span className="btn-ghost min-h-10 cursor-not-allowed px-4 opacity-40">Next →</span>
-        )}
+      {/* Mobile view (< 640px) — Compact prev/next to fit ~375px screens */}
+      <div className="flex items-center justify-between gap-2 sm:hidden">
+        <p className="text-xs text-muted">
+          Halaman {page} dari {totalPages}
+        </p>
+        <div className="flex items-center gap-1.5">
+          {prev ? (
+            <Link href={link(prev)} className="btn-ghost min-h-9 px-3 text-xs" prefetch={false}>
+              ← Prev
+            </Link>
+          ) : (
+            <span className="btn-ghost min-h-9 cursor-not-allowed px-3 text-xs opacity-40">← Prev</span>
+          )}
+          {next ? (
+            <Link href={link(next)} className="btn-ghost min-h-9 px-3 text-xs" prefetch={false}>
+              Next →
+            </Link>
+          ) : (
+            <span className="btn-ghost min-h-9 cursor-not-allowed px-3 text-xs opacity-40">Next →</span>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop view (>= 640px) — Full page numbers with active accent highlight */}
+      <div className="hidden items-center justify-between gap-3 sm:flex">
+        <p className="text-[13px] text-muted">
+          Halaman {page} dari {totalPages}
+        </p>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {prev ? (
+            <Link href={link(prev)} className="btn-ghost min-h-10 px-3 text-xs" prefetch={false}>
+              ← Prev
+            </Link>
+          ) : (
+            <span className="btn-ghost min-h-10 cursor-not-allowed px-3 text-xs opacity-40">← Prev</span>
+          )}
+
+          {pageNumbers.map((p, idx) => {
+            if (typeof p === "string") {
+              return (
+                <span key={`dots-${idx}`} className="px-2 text-xs text-muted">
+                  ...
+                </span>
+              );
+            }
+            const isActive = p === page;
+            return isActive ? (
+              <span
+                key={p}
+                className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full bg-accent text-xs font-semibold text-white"
+                aria-current="page"
+              >
+                {p}
+              </span>
+            ) : (
+              <Link
+                key={p}
+                href={link(p)}
+                className="btn-ghost min-h-10 min-w-10 px-2.5 text-xs text-secondary hover:text-primary"
+                prefetch={false}
+              >
+                {p}
+              </Link>
+            );
+          })}
+
+          {next ? (
+            <Link href={link(next)} className="btn-ghost min-h-10 px-3 text-xs" prefetch={false}>
+              Next →
+            </Link>
+          ) : (
+            <span className="btn-ghost min-h-10 cursor-not-allowed px-3 text-xs opacity-40">Next →</span>
+          )}
+        </div>
       </div>
     </nav>
   );
