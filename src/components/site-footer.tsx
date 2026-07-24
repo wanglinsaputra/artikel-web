@@ -8,9 +8,6 @@ const footerNav = [
   { href: "/about", label: "Tentang Kami" },
   { href: "/privacy", label: "Kebijakan Privasi" },
   { href: "/contact", label: "Kontak" },
-  { href: "/artikel", label: "Artikel" },
-  { href: "/bansos-ai", label: "Bansos AI" },
-  { href: "/marketplace", label: "Marketplace" },
 ];
 
 export function SiteFooter() {
