@@ -94,7 +94,7 @@ export default async function HomePage() {
       </section>
 
       <section>
-        <SectionTitle kicker="Artikel terbaru" title="Insight AI" href="/artikel" linkLabel="Semua Artikel" />
+        <SectionTitle kicker="Artikel terbaru" title="Insight" href="/artikel" linkLabel="Semua Artikel" />
         <div className="grid gap-5 md:grid-cols-2 md:gap-6">
           {articles.map((a) => (
             <Card key={a.id}>
