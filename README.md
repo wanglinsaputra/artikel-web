@@ -55,7 +55,8 @@ SESSION_SECRET
 TELEGRAM_USERNAME
 MONGODB_URI
 MONGODB_DB
-NEXT_PUBLIC_SITE_URL   # opsional, metadata base URL
+NEXT_PUBLIC_SITE_URL        # opsional, metadata base URL
+NEXT_PUBLIC_ADSENSE_PUB_ID  # opsional, Google AdSense publisher ID
 ```
 
 ## Fitur

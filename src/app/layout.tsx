@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,6 +15,8 @@ const geistMono = Geist_Mono({
 
 const siteDescription =
   "Portal AI untuk artikel, bansos AI, dan marketplace token.";
+
+const adsensePubId = process.env.NEXT_PUBLIC_ADSENSE_PUB_ID || "";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -48,7 +51,7 @@ export const metadata: Metadata = {
     images: ["/wanglins.webp"],
   },
   other: {
-    "google-adsense-account": "ca-pub-8494736033757973",
+    "google-adsense-account": adsensePubId,
   },
 };
 
@@ -64,6 +67,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <head>
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsensePubId}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      </head>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
