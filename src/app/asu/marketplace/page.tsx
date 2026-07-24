@@ -52,9 +52,12 @@ export default async function PanelMarketplacePage({
     const stock = Number(formData.get("stock") || 0);
     const image_url = String(formData.get("image_url") || "").trim();
     const telegram_text = String(formData.get("telegram_text") || "").trim();
+    const actionUrl = String(formData.get("actionUrl") || "").trim();
+    const actionLabel = String(formData.get("actionLabel") || "").trim();
     const published = formData.get("published") ? 1 : 0;
     if (!title) redirect("/asu/marketplace");
     if (image_url && !isSafeHttpUrl(image_url)) redirect("/asu/marketplace");
+    if (actionUrl && !isSafeHttpUrl(actionUrl)) redirect("/asu/marketplace");
     await createProduct({
       title,
       description,
@@ -63,6 +66,8 @@ export default async function PanelMarketplacePage({
       image_url,
       stock: Number.isFinite(stock) && stock >= 0 ? Math.floor(stock) : 0,
       telegram_text,
+      actionUrl: actionUrl || undefined,
+      actionLabel: actionLabel || undefined,
       published,
     });
     redirect("/asu/marketplace");
@@ -93,7 +98,7 @@ export default async function PanelMarketplacePage({
 
   return (
     <div className="space-y-8">
-      <PageHeader title="Marketplace" description="Gambar via link. Order → Telegram." />
+      <PageHeader title="Marketplace" description="Gambar via link. Order → Telegram atau Link CTA." />
 
       <Card hover={false}>
         <h2 className="text-lg font-semibold text-primary">Tambah produk</h2>
@@ -101,8 +106,10 @@ export default async function PanelMarketplacePage({
           <input name="title" placeholder="Judul produk" required className="field" />
           <input name="category" placeholder="Kategori (Token API, Akun AI, ...)" className="field" />
           <ImageUrlField />
-          <input name="price" type="number" min={0} step={1000} placeholder="Harga (Rp)" className="field" />
-          <input name="stock" type="number" min={0} placeholder="Stok" className="field" />
+          <input name="price" type="number" min={0} step={1000} placeholder="Harga (Rp) — kosongkan / 0 jika tidak ada" className="field" />
+          <input name="stock" type="number" min={0} placeholder="Stok — kosongkan / 0 jika tidak ada" className="field" />
+          <input name="actionUrl" type="url" placeholder="Link Order / URL CTA (opsional, misal: https://...)" className="field" />
+          <input name="actionLabel" placeholder="Label Tombol Order (opsional, misal: Order Here)" className="field" />
           <input name="telegram_text" placeholder="Pesan order Telegram (opsional)" className="field" />
           <MarkdownEditor name="description" placeholder="Deskripsi produk (Markdown: **bold**, # heading, - list, ...)" rows={8} />
           <label className="flex items-center gap-2 text-sm text-secondary">
@@ -143,9 +150,9 @@ export default async function PanelMarketplacePage({
                       {p.published ? <Badge>Published</Badge> : <Badge tone="hot">Draft</Badge>}
                     </div>
                     <h3 className="mt-2 break-words text-lg font-semibold text-primary">{p.title}</h3>
-                    <p className="text-sm font-medium text-accent">{formatRp(p.price)}</p>
+                    {p.price > 0 ? <p className="text-sm font-medium text-accent">{formatRp(p.price)}</p> : null}
                     <p className="text-[13px] text-muted">
-                      Stok {p.stock} · Terjual {p.sold}
+                      {p.stock > 0 ? `Stok ${p.stock} · ` : ""}Terjual {p.sold}
                     </p>
                   </div>
                 </div>

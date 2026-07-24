@@ -22,7 +22,7 @@ export default async function MarketplacePage({
       <TrackSectionView section="marketplace" />
       <BackHomeLink />
       <h1 className="text-[28px] font-bold text-primary sm:text-[32px]">Marketplace</h1>
-      <p className="mt-2 text-base text-secondary">Token API, akun AI, kredit — order via Telegram.</p>
+      <p className="mt-2 text-base text-secondary">Jasa pembuatan website, bot, automation, token API & produk.</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
         <FilterPill href="/marketplace" active={!cat}>
@@ -42,13 +42,17 @@ export default async function MarketplacePage({
             <CoverImage src={p.image_url} alt={p.title} className="mb-3 h-40 w-full object-cover" />
             <div className="flex flex-wrap gap-2">
               <Badge>{p.category}</Badge>
-              <Badge>
-                Terjual {p.sold} · Stok {p.stock}
-              </Badge>
+              {p.stock > 0 ? (
+                <Badge>
+                  Terjual {p.sold} · Stok {p.stock}
+                </Badge>
+              ) : p.sold > 0 ? (
+                <Badge>Terjual {p.sold}</Badge>
+              ) : null}
             </div>
             <h2 className="mt-3 text-lg font-semibold text-primary">{p.title}</h2>
             <p className="mt-2 line-clamp-3 text-base text-secondary">{p.description}</p>
-            <p className="mt-3 font-medium text-accent">{formatRp(p.price)}</p>
+            {p.price > 0 ? <p className="mt-3 font-medium text-accent">{formatRp(p.price)}</p> : null}
             <TextLink href={`/marketplace/${p.slug}`} className="mt-4 inline-block">
               Lihat Detail →
             </TextLink>

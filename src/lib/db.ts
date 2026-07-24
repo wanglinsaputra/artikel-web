@@ -78,6 +78,8 @@ export type Product = {
   stock: number;
   sold: number;
   telegram_text: string;
+  actionUrl?: string;
+  actionLabel?: string;
   published: number;
   created_at: string;
   updated_at: string;
@@ -551,6 +553,8 @@ export async function createProduct(
         image_url: data.image_url,
         stock: data.stock,
         telegram_text: data.telegram_text,
+        actionUrl: data.actionUrl,
+        actionLabel: data.actionLabel,
         published: data.published,
         id,
         sold: 0,
@@ -783,7 +787,7 @@ export const PORTAL_SECTIONS: {
   {
     section: "marketplace",
     title: "Marketplace",
-    desc: "Token API & kredit — order Telegram.",
+    desc: "Jasa pembuatan web, bot, automation & produk.",
     href: "/marketplace",
   },
 ];

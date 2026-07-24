@@ -28,7 +28,7 @@ export default async function HomePage() {
     <Container className="space-y-16 py-10 md:space-y-24 md:py-12">
       <section className="rounded-2xl border border-border bg-surface p-8 sm:p-12">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-medium text-accent">WangLinS · Portal AI</p>
+          <p className="text-sm font-medium text-accent">WangLinS · Portal & Development</p>
           {hasAnalytics && top ? (
             <Badge tone="hot">Trending · {top.title}</Badge>
           ) : null}
@@ -36,12 +36,12 @@ export default async function HomePage() {
         <h1 className="mt-3 max-w-2xl text-[44px] font-bold leading-tight tracking-tight text-primary sm:text-[56px]">
           {hasAnalytics && top
             ? `${top.title} lagi naik. Mulai dari sini.`
-            : "Pilih tools AI tanpa ribet."}
+            : "Solusi AI, Tools & Jasa Development Terpercaya"}
         </h1>
         <p className="mt-4 max-w-xl text-base text-secondary">
           {hasAnalytics && top
             ? top.desc
-            : "Panduan praktis, bansos AI resmi, dan marketplace token — semua di satu tempat."}
+            : "Panduan AI terbaru, promo kredit gratis, serta marketplace produk & jasa pembuatan website / bot — semua dalam satu tempat."}
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           {hasAnalytics && top ? (
@@ -136,18 +136,24 @@ export default async function HomePage() {
       </section>
 
       <section>
-        <SectionTitle kicker="Marketplace" title="Produk" href="/marketplace" linkLabel="Lihat Semua" />
+        <SectionTitle kicker="Marketplace" title="Jasa & Produk Digital" href="/marketplace" linkLabel="Lihat Semua" />
         <div className="grid gap-5 md:grid-cols-3 md:gap-6">
           {products.map((p) => (
             <Card key={p.id}>
               <CoverImage src={p.image_url} alt={p.title} className="mb-3 h-36 w-full object-cover" />
               <div className="flex flex-wrap gap-2">
                 <Badge>{p.category}</Badge>
-                <Badge>Terjual {p.sold}</Badge>
+                {p.stock > 0 ? (
+                  <Badge>
+                    Terjual {p.sold} · Stok {p.stock}
+                  </Badge>
+                ) : p.sold > 0 ? (
+                  <Badge>Terjual {p.sold}</Badge>
+                ) : null}
               </div>
               <h3 className="mt-3 text-lg font-semibold text-primary">{p.title}</h3>
               <p className="mt-2 line-clamp-2 text-base text-secondary">{p.description}</p>
-              <p className="mt-3 font-medium text-accent">{formatRp(p.price)}</p>
+              {p.price > 0 ? <p className="mt-3 font-medium text-accent">{formatRp(p.price)}</p> : null}
               <TextLink href={`/marketplace/${p.slug}`} className="mt-3 inline-block">
                 Lihat Detail →
               </TextLink>
