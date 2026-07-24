@@ -781,7 +781,7 @@ export const PORTAL_SECTIONS: {
   {
     section: "bansos-ai",
     title: "Bansos AI",
-    desc: "Free credit & trial. Hot butuh login.",
+    desc: "Free credit & trial.",
     href: "/bansos-ai",
   },
   {
