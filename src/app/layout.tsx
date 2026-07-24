@@ -47,6 +47,9 @@ export const metadata: Metadata = {
     description: siteDescription,
     images: ["/wanglins.webp"],
   },
+  other: {
+    "google-adsense-account": "ca-pub-8494736033757973",
+  },
 };
 
 export const viewport: Viewport = {
